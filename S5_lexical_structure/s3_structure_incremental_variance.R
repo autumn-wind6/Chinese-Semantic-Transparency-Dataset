@@ -1,0 +1,70 @@
+#!/usr/bin/env Rscript
+
+# Test lexical-structure main effects and ST-by-structure interaction.
+suppressPackageStartupMessages(library(readxl))
+
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 3) stop("usage: Rscript s3_structure_incremental_variance.R BEHAVIOR.xlsx STRUCTURE.xlsx OUTPUT_DIR")
+behavior_path <- args[[1]]
+structure_path <- args[[2]]
+output_dir <- args[[3]]
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+behavior <- as.data.frame(read_excel(behavior_path))
+controls_all <- c("LogWF", "Stroke", "C1.LogCF", "C2.LogCF", "C1.LogFS.Type", "C2.LogFS.Type", "C1.LogNoM", "C2.LogNoM", "C1.LogNoP", "C2.LogNoP")
+controls <- c("LogWF", "Stroke", "C1.LogCF", "C2.LogCF", "C1.LogFS.Type", "C2.LogFS.Type", "C2.LogNoM", "C1.LogNoP")
+required <- c("Word", "Real", "zRT", "ERR", controls_all, "C1.ST_qwen", "C2.ST_qwen")
+behavior <- behavior[behavior$ERR <= 30 & behavior$Real == 1, required]
+behavior <- behavior[complete.cases(behavior), ]
+for (name in c(controls_all, "C1.ST_qwen", "C2.ST_qwen")) behavior[[name]] <- as.numeric(scale(behavior[[name]], center = TRUE, scale = FALSE))
+
+formula_from <- function(response, predictors) as.formula(paste(response, "~", paste(predictors, collapse = " + ")))
+initial <- lm(formula_from("zRT", controls_all), data = behavior)
+behavior <- behavior[abs(as.numeric(scale(residuals(initial)))) < 2.5, ]
+
+structure <- as.data.frame(read_excel(structure_path))
+word_col <- if ("Word" %in% names(structure)) "Word" else "word"
+label_col <- if ("词汇结构" %in% names(structure)) "词汇结构" else "lexical_structure"
+c1_col <- if ("C1_ST_qwen" %in% names(structure)) "C1_ST_qwen" else if ("C1_ST" %in% names(structure)) "C1_ST" else "qwen_c1_score"
+c2_col <- if ("C2_ST_qwen" %in% names(structure)) "C2_ST_qwen" else if ("C2_ST" %in% names(structure)) "C2_ST" else "qwen_c2_score"
+structure <- structure[, c(word_col, label_col, c1_col, c2_col)]
+names(structure) <- c("Word", "LexicalStructure", "Qwen_C1", "Qwen_C2")
+structure <- structure[structure$LexicalStructure %in% c("联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀"), ]
+structure$SemTrans_Mean <- (structure$Qwen_C1 + structure$Qwen_C2) / 2
+
+analysis <- merge(behavior, structure, by = "Word")
+analysis <- analysis[complete.cases(analysis), ]
+analysis$LexicalStructure <- relevel(factor(analysis$LexicalStructure), ref = "偏正")
+analysis$SemTrans_Mean_c <- as.numeric(scale(analysis$SemTrans_Mean, center = TRUE, scale = FALSE))
+if (nrow(analysis) != 8401) warning(sprintf("expected 8,401 rows, found %s", nrow(analysis)))
+
+summary_rows <- list()
+comparison_rows <- list()
+for (outcome in c("zRT", "ERR")) {
+  control <- lm(formula_from(outcome, controls), data = analysis)
+  structure_only <- lm(formula_from(outcome, c(controls, "LexicalStructure")), data = analysis)
+  main <- lm(formula_from(outcome, c(controls, "SemTrans_Mean_c", "LexicalStructure")), data = analysis)
+  interaction <- lm(formula_from(outcome, c(controls, "SemTrans_Mean_c * LexicalStructure")), data = analysis)
+  fits <- list(control = control, structure = structure_only, main_effects = main, interaction = interaction)
+  for (name in names(fits)) {
+    fit <- fits[[name]]
+    summary_rows[[length(summary_rows) + 1]] <- data.frame(
+      outcome = outcome, model = name, n = nobs(fit), r2 = summary(fit)$r.squared,
+      adjusted_r2 = summary(fit)$adj.r.squared, AIC = AIC(fit), BIC = BIC(fit)
+    )
+  }
+  pairs <- list(c("control", "structure"), c("control", "main_effects"), c("main_effects", "interaction"))
+  for (pair in pairs) {
+    cmp <- anova(fits[[pair[[1]]]], fits[[pair[[2]]]])
+    comparison_rows[[length(comparison_rows) + 1]] <- data.frame(
+      outcome = outcome, reduced_model = pair[[1]], full_model = pair[[2]],
+      df = cmp$Df[2], F = cmp$F[2], p_value = cmp$`Pr(>F)`[2]
+    )
+  }
+}
+model_summary <- do.call(rbind, summary_rows)
+comparisons <- do.call(rbind, comparison_rows)
+write.csv(model_summary, file.path(output_dir, "structure_model_comparison.csv"), row.names = FALSE)
+write.csv(comparisons, file.path(output_dir, "structure_nested_tests.csv"), row.names = FALSE)
+print(model_summary, digits = 6)
+print(comparisons, digits = 6)

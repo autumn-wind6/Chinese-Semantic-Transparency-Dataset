@@ -1,0 +1,20 @@
+{
+  "semantic_transparency": {
+    "model": "qwen3-max",
+    "provider_interface": "DashScope OpenAI-compatible API",
+    "temperature": 0.0,
+    "max_tokens": 100,
+    "logprobs": true,
+    "top_logprobs": 5,
+    "score_definition": "Conditional expectation after renormalizing legal 1-7 rating tokens returned among first-token top log probabilities."
+  },
+  "lexical_structure": {
+    "model": "qwen3.5-397b-a17b",
+    "provider_interface": "OpenAI-compatible API",
+    "temperature": 0.3,
+    "thinking": false,
+    "production_taxonomy": "11 classes; 补充v and 补充n are merged as 补充",
+    "evaluation_taxonomy": "12 classes; 补充v and 补充n remain separate"
+  }
+}
+

@@ -1,0 +1,3 @@
+"position","human_significant_windows","qwen_significant_windows","overlapping_windows"
+"C1","TW1;TW7;TW8","TW3;TW7;TW8","TW7;TW8"
+"C2","TW2;TW4;TW7","",""

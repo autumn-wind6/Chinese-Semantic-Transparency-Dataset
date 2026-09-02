@@ -1,0 +1,5 @@
+analysis,position,method,n,coefficient,p_value
+word2vec_vs_human,C1,Pearson,8168,0.530218785401696,0.0
+word2vec_vs_human,C1,Spearman,8168,0.5486569052688566,0.0
+word2vec_vs_human,C2,Pearson,8168,0.4826171012554444,0.0
+word2vec_vs_human,C2,Spearman,8168,0.4972714392491122,0.0
