@@ -15,23 +15,8 @@ import pandas as pd
 
 
 STRUCTURES = ("联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀")
-DEFINITIONS = """(1) 联合：两个意义相同、相近、相关或相反的词根并列组合。
-(2) 偏正：前一个词根修饰、限制后一个词根。
-(3) 补充：后一个词根补充说明前一个词根。
-(4) 动宾：前一个词根表示动作，后一个词根表示动作支配或关涉的事物。
-(5) 主谓：前一个词根表示被陈述事物，后一个词根陈述前一个词根。
-(6) 叠音：由不成语素的音节重叠构成的双音语素。
-(7) 重叠：由相同词根语素重叠构成。
-(8) 连绵词：两个不同音节连缀为一个语素。
-(9) 音译外来词：音译的外来词。
-(10) 前缀：词缀位于词根之前。
-(11) 后缀：词缀位于词根之后。"""
-SYSTEM_PROMPT = (
-    "你是一位汉语语言学专家。请从以下十一类中选择最合适的一类：\n"
-    + DEFINITIONS
-    + "\n只回复一个类别，不要解释："
-    + "、".join(STRUCTURES)
-)
+PROMPTS_DIR = Path(__file__).resolve().parents[1] / "prompts"
+SYSTEM_PROMPT = (PROMPTS_DIR / "lexical_structure_11class_system.txt").read_text(encoding="utf-8")
 
 
 def parse_structure(text: str) -> str:
@@ -129,4 +114,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -15,7 +15,9 @@ S3_behavioral_variance/      zRT/ERR incremental explained variance
 S4_erp_time_windows/         E-MELD mixed-effects time-window analysis
 S5_lexical_structure/        Qwen3.5 structure labels, accuracy, and variance
 data/final/                  72,820-row public release in CSV and XLSX
+data/input/                  public Qwen prompt inputs and structure benchmark
 data/external/               instructions only; third-party data are excluded
+prompts/                     archived prompt texts loaded by the scoring scripts
 results/                     machine-readable result tables
 figures/                     reproducible summary figures
 tests/                       offline tests and independent numeric audit
@@ -31,6 +33,12 @@ The canonical file is `data/final/chinese_semantic_transparency_lexicon.csv`; an
 - A source string passing the two-character filter is a candidate lexical item, not a claim that it is an independently verified modern-Chinese dictionary word.
 
 Probability fields are JSON objects. They contain legal rating tokens found among the first token's top-5 log probabilities, renormalized to sum to one. The score is their conditional expectation on the 1–7 scale; it is not a calibrated full seven-class probability distribution.
+
+## Public prompt inputs
+
+`data/input/` contains the archived 72,820-word source matrix actually passed into ST scoring, a word-only input for the 11-class lexical-structure classifier, and the 1,015-item human-curated structure benchmark. The exact historical prompts are stored in `prompts/` and are loaded directly by the two Qwen scripts. See `data/input/README.md` for bilingual provenance and scope notes.
+
+`data/input/` 保存实际传入 ST 评分的 72,820 词来源矩阵、11 类词汇结构分类所需的逐词输入，以及 1,015 项人工结构评估集。历史 prompt 原文保存在 `prompts/`，并由两份 Qwen 脚本直接读取；中英文来源与范围说明见 `data/input/README.md`。
 
 ```python
 import json
@@ -82,6 +90,21 @@ python S2_correlation_validation/s4_build_correlation_summary.py --help
 Rscript S3_behavioral_variance/s1_behavioral_incremental_variance.R INPUT.xlsx results
 Rscript S4_erp_time_windows/s1_erp_time_window_lme.R ITEM_LIST.xlsx DATA.csv results
 Rscript S5_lexical_structure/s3_structure_incremental_variance.R BEHAVIOR.xlsx data/final/chinese_semantic_transparency_lexicon.xlsx results
+```
+
+The following commands use the public prompt inputs but make paid API requests, so they are examples for a future rerun rather than release-building commands:
+
+```bash
+python S1_qwen_scoring/s2_score_st.py \
+  --input data/input/st_scoring_source_matrix.xlsx \
+  --output OUTPUT.xlsx
+python S5_lexical_structure/s1_classify_structure.py \
+  --input data/input/lexical_structure_scoring_input.csv \
+  --output OUTPUT.csv
+python S5_lexical_structure/s2_evaluate_accuracy.py \
+  --input data/input/lexical_structure_accuracy_benchmark.xlsx \
+  --output results/lexical_structure_accuracy.csv \
+  --errors results/lexical_structure_errors.csv
 ```
 
 ## Data, provenance, and release status

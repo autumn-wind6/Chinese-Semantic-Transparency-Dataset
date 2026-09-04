@@ -20,17 +20,10 @@ import pandas as pd
 
 
 RATINGS = tuple(str(i) for i in range(1, 8))
+PROMPTS_DIR = Path(__file__).resolve().parents[1] / "prompts"
 SYSTEM_PROMPT = "你是一个简体中文母语者，请严格按照提示要求只输出一个1-7的数字，不要多余文字。"
-PROMPT_C1 = """语义透明度是衡量双字词中第一个语素与整词在意义上的关联程度的指标。
-如果该语素的意义与整词的意义高度一致或直接构成整词的核心含义，则语义透明度高；反之则低。
-请在1（完全无关）到7（极为相关）的量表上评分。若有多个义项，请依据最先想到的常用义项。
-例如：“美”在“美丽”中评7分；“马”在“马虎”中评1分。
-输入为：{morpheme}，{word}。请仅用1到7之间的数字作答。"""
-PROMPT_C2 = """语义透明度是衡量双字词中第二个语素与整词在意义上的关联程度的指标。
-如果该语素的意义与整词的意义高度一致或直接构成整词的核心含义，则语义透明度高；反之则低。
-请在1（完全无关）到7（极为相关）的量表上评分。若有多个义项，请依据最先想到的常用义项。
-例如：“丽”在“美丽”中评7分；“虎”在“马虎”中评1分。
-输入为：{morpheme}，{word}。请仅用1到7之间的数字作答。"""
+PROMPT_C1 = (PROMPTS_DIR / "semantic_transparency_c1.txt").read_text(encoding="utf-8")
+PROMPT_C2 = (PROMPTS_DIR / "semantic_transparency_c2.txt").read_text(encoding="utf-8")
 
 
 class MissingLogprobsError(RuntimeError):
@@ -182,4 +175,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

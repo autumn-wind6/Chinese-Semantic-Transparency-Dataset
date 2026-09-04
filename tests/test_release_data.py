@@ -10,6 +10,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data/final/chinese_semantic_transparency_lexicon.csv"
 DATA_XLSX = ROOT / "data/final/chinese_semantic_transparency_lexicon.xlsx"
+INPUTS = ROOT / "data/input"
 RESULTS = ROOT / "results"
 STRUCTURES = {
     "联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀"
@@ -54,6 +55,20 @@ class ReleaseDataTests(unittest.TestCase):
         pd.testing.assert_frame_equal(
             self.data.fillna(""), xlsx.fillna(""), check_dtype=False, check_exact=False, atol=1e-12
         )
+
+    def test_public_prompt_inputs(self):
+        source = pd.read_excel(INPUTS / "st_scoring_source_matrix.xlsx")
+        self.assertEqual(list(source.columns), ["word", "subtlex", "yuwei", "weiruan", "xianhan"])
+        self.assertEqual(source["word"].tolist(), self.data["word"].tolist())
+        for old, new in (("subtlex", "source_subtlex"), ("yuwei", "source_yuwei"), ("weiruan", "source_microsoft"), ("xianhan", "source_xianhan")):
+            self.assertTrue((source[old].astype(int) == self.data[new].astype(int)).all())
+
+        structure_input = pd.read_csv(INPUTS / "lexical_structure_scoring_input.csv")
+        self.assertEqual(list(structure_input.columns), ["word"])
+        self.assertEqual(structure_input["word"].tolist(), self.data["word"].tolist())
+
+        benchmark = pd.read_excel(INPUTS / "lexical_structure_accuracy_benchmark.xlsx", sheet_name=None, header=None)
+        self.assertEqual(sum(len(sheet) for sheet in benchmark.values()), 1015)
 
     def test_key_results(self):
         qwen = pd.read_csv(RESULTS / "qwen_human_correlation.csv")
