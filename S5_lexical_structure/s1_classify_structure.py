@@ -15,8 +15,39 @@ import pandas as pd
 
 
 STRUCTURES = ("联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀")
-PROMPTS_DIR = Path(__file__).resolve().parents[1] / "prompts"
-SYSTEM_PROMPT = (PROMPTS_DIR / "lexical_structure_11class_system.txt").read_text(encoding="utf-8")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_INPUT = REPO_ROOT / "data" / "input" / "lexical_structure_scoring_input.csv"
+DEFAULT_OUTPUT = REPO_ROOT / "data" / "final" / "lexical_structure_scores.csv"
+SYSTEM_PROMPT = """你是一位汉语语言学专家，对汉语词汇结构有深入了解。
+请根据我提供的词语，从以下十一种结构类型中选择一个最合适的类型。
+
+(1) 联合型：两个意义相同、相近、相关或相反的词根并列组合。
+(2) 偏正型：前一个词根修饰、限制后一个词根。
+(3) 补充型：后一个词根补充说明前一个词根。
+(4) 动宾型：前一个词根表示动作，后一个词根表示动作所支配的事物。
+(5) 主谓型：前一个词根表示被陈述的事物，后一个词根陈述前一个词根。
+(6) 叠音：由不成语素的音节重叠构成，是单语素词。
+(7) 重叠：由相同的词根语素重叠构成。
+(8) 连绵词：两个不同音节连缀成同一个语素。
+(9) 音译外来词：音译的外来词。
+(10) 前缀：词缀位于词根之前。
+(11) 后缀：词缀位于词根之后。
+
+请直接回复一个词：联合、偏正、补充、动宾、主谓、叠音、重叠、连绵词、音译外来词、前缀、后缀 中的一个，不要解释。"""
+
+
+def load_env_file(path: Path) -> None:
+    """Load simple KEY=VALUE entries without printing or overwriting secrets."""
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key, value = key.strip(), value.strip()
+        if key.isidentifier():
+            os.environ.setdefault(key, value.strip("\"'"))
 
 
 def parse_structure(text: str) -> str:
@@ -63,12 +94,13 @@ def write_table(frame: pd.DataFrame, path: Path) -> None:
 
 
 def main() -> None:
+    load_env_file(REPO_ROOT / ".env")
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--word-column", default="word")
     parser.add_argument("--model", default=os.getenv("QWEN_STRUCTURE_MODEL", "qwen3.5-397b-a17b"))
-    parser.add_argument("--base-url", default=os.getenv("QWEN_STRUCTURE_BASE_URL", ""))
+    parser.add_argument("--base-url", default=os.getenv("QWEN_STRUCTURE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"))
     parser.add_argument("--workers", type=int, default=16)
     parser.add_argument("--retries", type=int, default=5)
     parser.add_argument("--checkpoint-every", type=int, default=100)

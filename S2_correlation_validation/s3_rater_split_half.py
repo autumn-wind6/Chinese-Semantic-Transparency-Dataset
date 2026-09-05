@@ -12,6 +12,10 @@ import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_INPUT = REPO_ROOT / "data" / "input" / "human_rating_validation.xlsx"
+DEFAULT_OUTPUT = REPO_ROOT / "results" / "human_split_half_correlation.csv"
+
 def parse_ratings(value: object) -> list[float]:
     if pd.isna(value):
         return []
@@ -56,8 +60,8 @@ def analyze(frame: pd.DataFrame) -> pd.DataFrame:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     frame = pd.read_excel(args.input) if args.input.suffix.lower() == ".xlsx" else pd.read_csv(args.input)
     result = analyze(frame)
@@ -68,4 +72,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

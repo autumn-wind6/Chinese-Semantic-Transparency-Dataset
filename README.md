@@ -1,129 +1,146 @@
-# ST: Chinese Semantic Transparency Norms and Validation
+# Chinese Semantic Transparency and Lexical Structure
 
-> 中文说明见下方“中文概览”。Repository name `ST` is temporary and can be changed before publication.
+This repository was organized from the final research outputs and follows the actual study sequence: semantic-transparency scoring, correlation validation, incremental behavioral variance, ERP time-window analysis, and lexical-structure analysis. All scripts read their default inputs from the repository's `data/` directory and write outputs to `data/final/` or `results/`; no paths need to be edited in the scripts.
 
-This repository contains the release dataset, reproducible code, and compact results for large-scale Qwen semantic-transparency scoring of Chinese two-character candidate words. The organization follows the research workflow: scoring, convergent validity, behavioral incremental variance, ERP time-window validity, and lexical-structure analysis.
+## 1. Data Scope
 
-The original working directory is not part of this repository. Early GPT/Grok/DeepSeek experiments, failed fine-tuning attempts, manuscripts, literature PDFs, presentation files, and exploratory duplicates are intentionally excluded.
+- `data/input/LDT.xlsx` contains 20,044 rows. Retaining real words with non-missing `C1.ST` values produces a scoring set of 8,785 words.
+- `data/final/Qwen_ST.xlsx` is the archived Qwen scoring output for those 8,785 words and is the data source for the correlation and behavioral analyses.
+- `data/input/st_scoring_source_matrix.xlsx` contains 65,892 two-character candidate words produced by merging and filtering the SUBTLEX, yuwei, and xianhan lexicons. Words found in SUBTLEX also retain the original `WCount` frequency value.
+- `data/final/chinese_semantic_transparency_lexicon.csv` is the expanded 65,892-row lexicon. It includes C1/C2 semantic-transparency scores, SUBTLEX frequencies, and lexical-structure labels. See [`data/final/README.md`](data/final/README.md) for details.
 
-## Repository structure
+## 2. Repository Structure
 
 ```text
-S1_qwen_scoring/             source aggregation and qwen3-max ST scoring
-S2_correlation_validation/   human and static-embedding correlations
-S3_behavioral_variance/      zRT/ERR incremental explained variance
-S4_erp_time_windows/         E-MELD mixed-effects time-window analysis
-S5_lexical_structure/        Qwen3.5 structure labels, accuracy, and variance
-data/final/                  72,820-row public release in CSV and XLSX
-data/input/                  public Qwen prompt inputs and structure benchmark
-data/external/               instructions only; third-party data are excluded
-prompts/                     archived prompt texts loaded by the scoring scripts
-results/                     machine-readable result tables
-figures/                     reproducible summary figures
-tests/                       offline tests and independent numeric audit
+data/
+├── external/                    SUBTLEX, xianhan, and yuwei lexicons
+├── input/                       Inputs for scoring and statistical analyses
+└── final/                       Results for 8,785 words and the 65,892-row expanded lexicon
+S1_qwen_scoring/                 Source-matrix construction and Qwen semantic-transparency scoring
+S2_correlation_validation/       Qwen/Word2Vec-to-human correlations and human-rating split-half analysis
+S3_behavioral_variance/          Incremental variance in zRT and ERR
+S4_erp_time_windows/             Ten ERP time windows
+S5_lexical_structure/            Lexical-structure scoring and incremental-variance analysis
+results/                         Final numerical results
 ```
 
-## Main dataset
+## 3. API Configuration
 
-The canonical file is `data/final/chinese_semantic_transparency_lexicon.csv`; an equivalent Excel version is provided. It contains 72,820 unique two-character candidates and the stable fields documented in `data/data_dictionary.csv`.
+Copy the configuration template and enter the API endpoint and key only in your local `.env` file:
 
-- 72,818 rows have valid ST scores and lexical-structure labels.
-- `乱伦` is retained with `st_qc_status=missing_score` because no usable C1/C2 score was archived.
-- `轮奸` is retained with `structure_qc_status=api_error`; its ST scores remain valid.
-- A source string passing the two-character filter is a candidate lexical item, not a claim that it is an independently verified modern-Chinese dictionary word.
-
-Probability fields are JSON objects. They contain legal rating tokens found among the first token's top-5 log probabilities, renormalized to sum to one. The score is their conditional expectation on the 1–7 scale; it is not a calibrated full seven-class probability distribution.
-
-## Public prompt inputs
-
-`data/input/` contains the archived 72,820-word source matrix actually passed into ST scoring, a word-only input for the 11-class lexical-structure classifier, and the 1,015-item human-curated structure benchmark. The exact historical prompts are stored in `prompts/` and are loaded directly by the two Qwen scripts. See `data/input/README.md` for bilingual provenance and scope notes.
-
-`data/input/` 保存实际传入 ST 评分的 72,820 词来源矩阵、11 类词汇结构分类所需的逐词输入，以及 1,015 项人工结构评估集。历史 prompt 原文保存在 `prompts/`，并由两份 Qwen 脚本直接读取；中英文来源与范围说明见 `data/input/README.md`。
-
-```python
-import json
-import pandas as pd
-
-norms = pd.read_csv("data/final/chinese_semantic_transparency_lexicon.csv")
-usable = norms.query("st_qc_status == 'valid' and structure_qc_status == 'valid'")
-distribution = json.loads(usable.iloc[0].qwen_c1_probability_distribution)
+```bash
+cp .env.example .env
 ```
 
-## Models and analysis order
+```dotenv
+QWEN_API_KEY=your_api_key
+QWEN_BASE_URL=your_api_endpoint
+QWEN_MODEL=qwen3-max
 
-1. **Qwen scoring.** ST was generated with `qwen3-max`, temperature 0, first-token logprobs, and top-logprobs 5. `s2_score_st.py` fails closed if an endpoint omits logprobs and supports checkpoints/resume. Existing release scores are not re-requested.
-2. **Convergent validity.** Qwen scores are compared with human ratings; Tencent static Chinese embeddings provide a geometric baseline. Human-rating split-half correlations validate the archived mean columns.
-3. **Behavioral validity.** OLS models predict MELD-SCH item-level zRT and ERR after retaining real words, applying ERR ≤ 30, complete-case filtering, centering continuous predictors, and excluding observations with absolute z-scored residuals ≥ 2.5 from the initial zRT control model. The common analysis sample is 8,402 items.
-4. **ERP validity.** Ten E-MELD 100-ms windows are modeled with Qwen C1/C2, published lexical/region controls, and random intercepts for subject and item. C1 and C2 p-values are BH-FDR corrected separately.
-5. **Lexical structure.** Production labels use Qwen3.5-397B-A17B and an 11-class taxonomy. The human benchmark retains 12 classes by separating 补充v and 补充n. Structure analyses use 8,401 behavioral items.
+# Leave QWEN_STRUCTURE_API_KEY empty if lexical-structure scoring uses the same key.
+QWEN_STRUCTURE_API_KEY=
+QWEN_STRUCTURE_BASE_URL=your_api_endpoint
+QWEN_STRUCTURE_MODEL=qwen3.5-397b-a17b
 
-Model metadata are stored in `data/model_metadata.json`.
+# Absolute local path to the Tencent Chinese Word2Vec file stored outside this repository.
+TENCENT_W2V_BIN=/path/to/light_Tencent_AILab_ChineseEmbedding.bin
+```
 
-## Key results
+`.env` is excluded by `.gitignore`, so real credentials will not be committed. System environment variables can also override values in `.env`.
 
-- Qwen–human Spearman correlations: C1 ρ=.5910 and C2 ρ=.5384 (N=8,785).
-- Static-embedding Spearman correlations: C1 ρ=.5487 and C2 ρ=.4973 (common N=8,168).
-- Qwen ST significantly improves zRT and ERR models beyond lexical controls; its adjusted-R² increases are .0032 and .0040, respectively.
-- Qwen C1 is FDR-significant at TW3, TW7, and TW8. The human/Qwen C1 overlap is TW7–TW8 (600–800 ms); Qwen C2 has no FDR-significant window.
-- The 12-class structure benchmark accuracy is 89.06% (904/1,015).
-- Production structure labels add significant zRT and ERR variance; ST-by-structure interactions are not significant.
+## 4. Inputs, Scripts, and Outputs by Stage
 
-Full-precision values are in `results/` and summarized in `results/KEY_FINDINGS.md`.
+### S1: Semantic-Transparency Scoring
 
-## Reproduction
+| Order | Script | Default input | Default output | Description |
+|---|---|---|---|---|
+| 1 | `S1_qwen_scoring/s1_build_scoring_input.py` | Three lexicons in `data/external/` | `data/input/st_scoring_source_matrix.xlsx` | Merges, deduplicates, and filters two-character words; does not call an API |
+| 2 | `S1_qwen_scoring/s2_score_semantic_transparency.py` | `data/input/LDT.xlsx` | `data/final/Qwen_ST_rerun.xlsx` | Scores 8,785 real words; calls a paid API |
 
-Python 3.10+ and R 4.3+ are recommended.
+To score the 8,785-word set directly:
+
+```bash
+python S1_qwen_scoring/s2_score_semantic_transparency.py
+```
+
+By default, the script writes to the new filename `Qwen_ST_rerun.xlsx` and does not overwrite the archived `Qwen_ST.xlsx`. To rebuild and rescore the 65,892-word input:
+
+```bash
+python S1_qwen_scoring/s1_build_scoring_input.py
+python S1_qwen_scoring/s2_score_semantic_transparency.py \
+  --input data/input/st_scoring_source_matrix.xlsx \
+  --word-column word \
+  --filter-column "" \
+  --real-column "" \
+  --output data/final/expanded_st_scores_rerun.xlsx
+```
+
+### S2: Correlation Validation
+
+| Order | Script | Default input | Default output |
+|---|---|---|---|
+| 1 | `S2_correlation_validation/s1_qwen_human_correlation.py` | `data/final/Qwen_ST.xlsx` | `results/qwen_human_correlation.csv` |
+| 2 | `S2_correlation_validation/s2_word2vec_baseline.py` | `data/final/Qwen_ST.xlsx` and the external Tencent word vectors | `results/word2vec_human_correlation.csv` |
+| 3 | `S2_correlation_validation/s3_rater_split_half.py` | `data/input/human_rating_validation.xlsx` | `results/human_split_half_correlation.csv` |
+
+```bash
+python S2_correlation_validation/s1_qwen_human_correlation.py
+python S2_correlation_validation/s2_word2vec_baseline.py \
+  --embedding-binary /path/to/light_Tencent_AILab_ChineseEmbedding.bin
+python S2_correlation_validation/s3_rater_split_half.py
+```
+
+These three scripts compute and export numerical results only; they do not generate figures. The Tencent word-vector file is too large to include in the repository. Its absolute path can instead be configured with `TENCENT_W2V_BIN` in `.env`. If the input already contains `cos_C1_Word` and `cos_C2_Word`, use `--reuse-cosines` to avoid loading the word vectors again.
+
+### S3: Incremental Behavioral Variance
+
+| Script | Default input | Default output |
+|---|---|---|
+| `S3_behavioral_variance/s1_behavioral_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` | `results/behavioral_model_comparison.csv` and `results/behavioral_sample_audit.csv` |
+
+```bash
+Rscript S3_behavioral_variance/s1_behavioral_incremental_variance.R
+```
+
+This script reproduces the baseline, human-ST, Qwen-ST, and combined model comparisons for zRT and ERR.
+
+### S4: ERP Time Windows
+
+The human ERP data come from the E-MELD dataset by Tsang and Zou (2022). They must be obtained through the data-availability statement or supplementary materials of the [original article](https://doi.org/10.1111/psyp.14111). Download instructions, field preparation, and citation requirements are documented in [`S4_erp_time_windows/README.md`](S4_erp_time_windows/README.md).
+
+| Script | Default input | Default output |
+|---|---|---|
+| `S4_erp_time_windows/s1_erp_time_window_lme.R` | `data/input/erp_item_list.xlsx` and `data/input/erp_data_analysis.csv` | `results/erp_time_window_results.csv` and `results/erp_window_overlap.csv` |
+
+```bash
+Rscript S4_erp_time_windows/s1_erp_time_window_lme.R
+```
+
+The script fits mixed-effects models for TW1-TW10 and applies BH-FDR correction separately to the C1 and C2 p-values.
+
+### S5: Lexical Structure
+
+| Order | Script | Default input | Default output | Description |
+|---|---|---|---|---|
+| 1 | `S5_lexical_structure/s1_classify_structure.py` | `data/input/lexical_structure_scoring_input.csv` | `data/final/lexical_structure_scores.csv` | Assigns one of 11 lexical-structure classes to 65,892 words; calls a paid API |
+| 2 | `S5_lexical_structure/s2_structure_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` and `data/final/chinese_semantic_transparency_lexicon.csv` | `results/structure_model_comparison.csv` and `results/structure_nested_tests.csv` | Tests incremental lexical-structure variance and ST-by-structure interactions |
+
+```bash
+python S5_lexical_structure/s1_classify_structure.py
+Rscript S5_lexical_structure/s2_structure_incremental_variance.R
+```
+
+## 5. Dependencies and Execution Order
+
+Python 3.10+ and R 4.3+ are recommended:
 
 ```bash
 python -m pip install -r requirements.txt
 Rscript requirements.R
-python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Each numbered script accepts explicit input/output arguments and uses no machine-specific absolute paths. See `data/external/README.md` for third-party inputs. Paid API scripts are never invoked by the test suite.
+To reproduce the existing analysis results, run S2, S3, S4, and the S5 variance script in that order. Qwen does not need to be called again. Run the S1 scoring script or the S5 classification script only when regenerating scores or labels.
 
-Representative commands:
+## 6. Scope and Exclusions
 
-```bash
-python S2_correlation_validation/s1_qwen_human_correlation.py --help
-python S2_correlation_validation/s4_build_correlation_summary.py --help
-Rscript S3_behavioral_variance/s1_behavioral_incremental_variance.R INPUT.xlsx results
-Rscript S4_erp_time_windows/s1_erp_time_window_lme.R ITEM_LIST.xlsx DATA.csv results
-Rscript S5_lexical_structure/s3_structure_incremental_variance.R BEHAVIOR.xlsx data/final/chinese_semantic_transparency_lexicon.xlsx results
-```
-
-The following commands use the public prompt inputs but make paid API requests, so they are examples for a future rerun rather than release-building commands:
-
-```bash
-python S1_qwen_scoring/s2_score_st.py \
-  --input data/input/st_scoring_source_matrix.xlsx \
-  --output OUTPUT.xlsx
-python S5_lexical_structure/s1_classify_structure.py \
-  --input data/input/lexical_structure_scoring_input.csv \
-  --output OUTPUT.csv
-python S5_lexical_structure/s2_evaluate_accuracy.py \
-  --input data/input/lexical_structure_accuracy_benchmark.xlsx \
-  --output results/lexical_structure_accuracy.csv \
-  --errors results/lexical_structure_errors.csv
-```
-
-## Data, provenance, and release status
-
-Third-party raw datasets and embedding binaries are not redistributed. Formal names, versions, and URLs for the local `yuwei`, Microsoft-format, and Modern Chinese Dictionary source lists still require author confirmation. Until those entries are completed, this repository is locally Git-ready but not cleared for a public remote.
-
-No license is granted at this stage. All rights are reserved until the authors confirm code and derived-data licensing.
-
-## 中文概览
-
-本仓库整理了汉语双字词语义透明度的最终公开版数据、分析代码和结果。研究流程分为五步：Qwen 概率评分、与人工评分及静态词向量的相关验证、对词汇判断行为的方差增量、ERP 时间窗一致性、词汇结构分类及其附加解释量。
-
-最终主表保留 72,820 个唯一双字候选词，并同时提供 CSV 与 Excel。字段采用稳定英文命名，完整中英文解释见 `data/data_dictionary.csv`。第三方原始数据、词向量和未确认授权的原始词表不上传；仓库只提供来源与放置说明。当前无许可证，在三项词表正式出处和授权口径补齐前不应建立公开 GitHub 远程仓库。
-
-## References / 主要参考文献
-
-- Cai, Q., & Brysbaert, M. (2010). SUBTLEX-CH: Chinese word and character frequencies based on film subtitles. *PLoS ONE, 5*(6), e10729.
-- Song, Y., Shi, S., Li, J., & Zhang, H. (2018). Directional skip-gram: Explicitly distinguishing left and right context for word embeddings. *NAACL-HLT*.
-- Tsang, Y.-K., Huang, J., Lui, M., Xue, M., Chan, Y.-W. F., Wang, S., & Chen, H.-C. (2018). MELD-SCH: A megastudy of lexical decision in simplified Chinese. *Behavior Research Methods, 50*, 1763–1777.
-- Tsang, Y.-K., & Zou, Y. (2022). An ERP megastudy of Chinese word recognition. *Psychophysiology, 59*(11), e14111.
-- Tse, C.-S., Yap, M. J., Chan, Y.-L., Sze, W. P., Shaoul, C., & Lin, D. (2017). The Chinese Lexicon Project. *Behavior Research Methods, 49*, 1079–1098.
-- Wang, X., & Xu, X. (2025). Composition as nonlinear combination in semantic space: A computational characterization of Chinese compound words. *Cognitive Science*.
+The Word2Vec baseline script retains the Tencent-vector cosine-similarity calculations and their correlations with human ratings; the large binary word-vector file remains an external dependency. The benchmark required to evaluate human accuracy on lexical structure was not part of the organized final outputs and is therefore excluded. This repository does not include plotting code, figures, exploratory notebooks, or experimental materials from other working directories.

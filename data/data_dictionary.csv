@@ -2,15 +2,14 @@ field,type,description_en,description_zh
 word,string,Unique two-character candidate word,唯一双字候选词
 c1,string,First character or morpheme,第一组成字或语素
 c2,string,Second character or morpheme,第二组成字或语素
-source_subtlex,integer 0/1,Present in the local SUBTLEX-CH source list,是否见于本地 SUBTLEX-CH 来源表
-source_yuwei,integer 0/1,Present in the local yuwei source list; formal provenance pending,是否见于本地 yuwei 词表；正式出处待补
-source_microsoft,integer 0/1,Present in the local Microsoft-format lexicon; formal provenance pending,是否见于本地微软格式词典；正式出处待补
-source_xianhan,integer 0/1,Present in the local Modern Chinese Dictionary export; edition pending,是否见于本地《现代汉语词典》导出；版本待补
-qwen_c1_probability_distribution,JSON string,Renormalized legal C1 rating tokens found among top-5 first-token logprobs,首 token top-5 中合法 C1 评分候选重新归一化后的分布
-qwen_c1_score,float,Conditional expected C1 semantic-transparency score on 1-7 scale,C1 语义透明度在 1—7 量表上的条件期望
-qwen_c2_probability_distribution,JSON string,Renormalized legal C2 rating tokens found among top-5 first-token logprobs,首 token top-5 中合法 C2 评分候选重新归一化后的分布
-qwen_c2_score,float,Conditional expected C2 semantic-transparency score on 1-7 scale,C2 语义透明度在 1—7 量表上的条件期望
-lexical_structure,string,Qwen production label from the 11-class taxonomy,Qwen 在 11 类生产体系下给出的词汇结构标签
-st_qc_status,string,valid or missing_score,ST 质量状态：valid 或 missing_score
-structure_qc_status,string,valid or api_error,词汇结构质量状态：valid 或 api_error
-
+source_subtlex,integer 0/1,Present in the SUBTLEX-CH source list,是否见于 SUBTLEX-CH 来源表
+subtlex_wcount,nullable integer,Raw word-token count (WCount) from SUBTLEX-CH; blank when absent,来自 SUBTLEX-CH 的原始词频 WCount；未收录时为空
+source_yuwei,integer 0/1,Present in the yuwei source list,是否见于 yuwei 词表
+source_xianhan,integer 0/1,Present in the Modern Chinese Dictionary export,是否见于《现代汉语词典》导出
+qwen_c1_probability_distribution,JSON string,Renormalized legal C1 rating tokens among top-5 first-token logprobs,首 token top-5 中合法 C1 评分候选重新归一化后的分布
+qwen_c1_score,float,C1 semantic-transparency score on the 1-7 scale,C1 语义透明度在 1—7 量表上的条件期望
+qwen_c2_probability_distribution,JSON string,Renormalized legal C2 rating tokens among top-5 first-token logprobs,首 token top-5 中合法 C2 评分候选重新归一化后的分布
+qwen_c2_score,float,C2 semantic-transparency score on the 1-7 scale,C2 语义透明度在 1—7 量表上的条件期望
+lexical_structure,string,Qwen label from the 11-class taxonomy,Qwen 在 11 类体系下给出的词汇结构标签
+st_qc_status,string,Semantic-transparency score status,语义透明度评分质量状态
+structure_qc_status,string,Lexical-structure label status,词汇结构标签质量状态

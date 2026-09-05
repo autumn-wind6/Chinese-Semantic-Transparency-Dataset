@@ -5,11 +5,14 @@ suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(lme4))
 suppressPackageStartupMessages(library(lmerTest))
 
+script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+script_dir <- dirname(normalizePath(sub("^--file=", "", script_arg[[1]]), mustWork = FALSE))
+repo_root <- normalizePath(file.path(script_dir, ".."), mustWork = FALSE)
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 3) stop("usage: Rscript s1_erp_time_window_lme.R ITEM_LIST.xlsx DATA.csv OUTPUT_DIR")
-item_path <- args[[1]]
-data_path <- args[[2]]
-output_dir <- args[[3]]
+if (length(args) > 3) stop("usage: Rscript s1_erp_time_window_lme.R [ITEM_LIST.xlsx] [DATA.csv] [OUTPUT_DIR]")
+item_path <- if (length(args) >= 1) args[[1]] else file.path(repo_root, "data", "input", "erp_item_list.xlsx")
+data_path <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "data", "input", "erp_data_analysis.csv")
+output_dir <- if (length(args) >= 3) args[[3]] else file.path(repo_root, "results")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 items <- as.data.frame(read_excel(item_path, sheet = "word"))
@@ -67,4 +70,3 @@ overlap <- data.frame(
 )
 write.csv(overlap, file.path(output_dir, "erp_window_overlap.csv"), row.names = FALSE)
 print(result, digits = 6)
-

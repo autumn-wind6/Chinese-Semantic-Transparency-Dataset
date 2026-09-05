@@ -10,14 +10,8 @@ __pycache__/
 .Rproj.user/
 .mplconfig/
 
-# Third-party inputs are documented but never committed.
-data/external/*
-!data/external/README.md
-!data/external/.gitkeep
-
 # API checkpoints and scratch outputs.
 **/checkpoints/
 **/*.checkpoint.csv
 **/*.checkpoint.xlsx
 tmp/
-

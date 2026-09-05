@@ -3,10 +3,13 @@
 # Reproduce incremental explained-variance analyses for zRT and ERR.
 suppressPackageStartupMessages(library(readxl))
 
+script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+script_dir <- dirname(normalizePath(sub("^--file=", "", script_arg[[1]]), mustWork = FALSE))
+repo_root <- normalizePath(file.path(script_dir, ".."), mustWork = FALSE)
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 2) stop("usage: Rscript s1_behavioral_incremental_variance.R INPUT.xlsx OUTPUT_DIR")
-input_path <- args[[1]]
-output_dir <- args[[2]]
+if (length(args) > 2) stop("usage: Rscript s1_behavioral_incremental_variance.R [INPUT.xlsx] [OUTPUT_DIR]")
+input_path <- if (length(args) >= 1) args[[1]] else file.path(repo_root, "data", "input", "behavioral_variance_input.xlsx")
+output_dir <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "results")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 data <- as.data.frame(read_excel(input_path))
@@ -62,4 +65,3 @@ result <- do.call(rbind, rows)
 write.csv(result, file.path(output_dir, "behavioral_model_comparison.csv"), row.names = FALSE)
 write.csv(data.frame(initial_complete_cases = initial_n, excluded_by_zrt_residual = sum(!keep), analysis_n = nrow(analysis)), file.path(output_dir, "behavioral_sample_audit.csv"), row.names = FALSE)
 print(result, digits = 6)
-
