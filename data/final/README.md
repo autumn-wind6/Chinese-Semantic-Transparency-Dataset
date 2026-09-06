@@ -25,9 +25,9 @@ Candidate words were merged, filtered, and deduplicated from three sources:
 | `qwen_c1_score` | Float | Probability-weighted C1 semantic-transparency score in the range 1-7 |
 | `qwen_c2_probability_distribution` | JSON string | Renormalized distribution over valid ratings from 1 to 7 among the top-five candidates for the first C2 token |
 | `qwen_c2_score` | Float | Probability-weighted C2 semantic-transparency score in the range 1-7 |
-| `lexical_structure` | String | One of the 11 lexical-structure labels assigned by Qwen |
+| `lexical_structure` | String | Canonical codebook label from [`lexical_structure_labels.csv`](../lexical_structure_labels.csv) |
 
-The 11 lexical-structure classes are coordinate, modifier-head, complement, verb-object, subject-predicate, reduplicative-sound, full reduplication, inseparable disyllabic, phonetic loanword, prefix-derived, and suffix-derived.
+The codebook has 11 English labels: `SUBORD`, `COORD`, `SP`, `COMP`, `VO`, `PFX`, `SFX`, `PLW`, `PHON_RED`, `MORPH_RED`, and `BINOME`. All non-missing labels have been recoded to the codebook `label` values. The mapping table is [`lexical_structure_labels.csv`](../lexical_structure_labels.csv); the original workbook is [`lexical_structure_labels.xlsx`](../lexical_structure_labels.xlsx).
 
 ## Data Integrity
 

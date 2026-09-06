@@ -1,0 +1,12 @@
+chinese_structure,english_name,label
+偏正,subordinate compound,SUBORD
+联合,coordinate compound,COORD
+主谓,subject-predicate compound,SP
+补充,complement compound,COMP
+动宾,verb-object compound,VO
+前缀,prefixed word,PFX
+后缀,suffixed word,SFX
+音译外来词,phonetic loanword,PLW
+叠音,phonological reduplicative word,PHON_RED
+重叠,morphological reduplicative compound,MORPH_RED
+连绵词,binome / non-compositional disyllabic word,BINOME

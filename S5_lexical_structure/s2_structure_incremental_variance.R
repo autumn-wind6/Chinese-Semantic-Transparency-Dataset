@@ -36,12 +36,21 @@ c1_col <- if ("C1_ST_qwen" %in% names(structure)) "C1_ST_qwen" else if ("C1_ST" 
 c2_col <- if ("C2_ST_qwen" %in% names(structure)) "C2_ST_qwen" else if ("C2_ST" %in% names(structure)) "C2_ST" else "qwen_c2_score"
 structure <- structure[, c(word_col, label_col, c1_col, c2_col)]
 names(structure) <- c("Word", "LexicalStructure", "Qwen_C1", "Qwen_C2")
-structure <- structure[structure$LexicalStructure %in% c("联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀"), ]
+label_map <- c(
+  "联合" = "COORD", "偏正" = "SUBORD", "主谓" = "SP", "补充" = "COMP",
+  "动宾" = "VO", "前缀" = "PFX", "后缀" = "SFX", "音译外来词" = "PLW",
+  "叠音" = "PHON_RED", "重叠" = "MORPH_RED", "连绵词" = "BINOME"
+)
+mapped <- unname(label_map[as.character(structure$LexicalStructure)])
+structure$LexicalStructure <- ifelse(is.na(mapped), as.character(structure$LexicalStructure), mapped)
+valid_labels <- c("COORD", "SUBORD", "COMP", "VO", "SP", "PHON_RED", "MORPH_RED", "BINOME", "PLW", "PFX", "SFX")
+structure <- structure[structure$LexicalStructure %in% valid_labels, ]
 structure$SemTrans_Mean <- (structure$Qwen_C1 + structure$Qwen_C2) / 2
 
 analysis <- merge(behavior, structure, by = "Word")
 analysis <- analysis[complete.cases(analysis), ]
-analysis$LexicalStructure <- relevel(factor(analysis$LexicalStructure), ref = "偏正")
+reference <- if ("SUBORD" %in% analysis$LexicalStructure) "SUBORD" else "偏正"
+analysis$LexicalStructure <- relevel(factor(analysis$LexicalStructure), ref = reference)
 analysis$SemTrans_Mean_c <- as.numeric(scale(analysis$SemTrans_Mean, center = TRUE, scale = FALSE))
 if (nrow(analysis) != 8401) warning(sprintf("expected 8,401 rows, found %s", nrow(analysis)))
 

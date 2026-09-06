@@ -17,6 +17,8 @@ All retained scripts read their default inputs from this directory and do not de
 | `input/erp_item_list.xlsx` | 1,020 real words | ERP items and machine-generated ST scores | `item_list.xlsx` from the original data-analysis materials |
 | `input/erp_data_analysis.csv` | 311,202 | ERP data in long format | `data_analysis.csv` from the original data-analysis materials |
 | `final/Qwen_ST.xlsx` | 8,785 | Archived Qwen scores for the 8,785-word set | `Qwen_ST.xlsx` from the original Qwen-scoring materials |
+| `lexical_structure_labels.csv` | 11 | Chinese-to-English lexical-structure codebook | `structure label(1).xlsx`, with complement unified as COMP |
+| `lexical_structure_labels.xlsx` | 11 | Codebook workbook | Same 11-class table as the CSV |
 | `final/chinese_semantic_transparency_lexicon.csv` | 65,892 | Final expanded lexicon | Normalized export after removing words unique to one excluded source |
 
 For fields, provenance, and integrity checks for the final expanded lexicon, see [`final/README.md`](final/README.md). Consolidated field definitions are available in [`data_dictionary.csv`](data_dictionary.csv).

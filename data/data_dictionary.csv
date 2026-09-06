@@ -10,6 +10,9 @@ qwen_c1_probability_distribution,JSON string,Renormalized legal C1 rating tokens
 qwen_c1_score,float,C1 semantic-transparency score on the 1-7 scale,C1 语义透明度在 1—7 量表上的条件期望
 qwen_c2_probability_distribution,JSON string,Renormalized legal C2 rating tokens among top-5 first-token logprobs,首 token top-5 中合法 C2 评分候选重新归一化后的分布
 qwen_c2_score,float,C2 semantic-transparency score on the 1-7 scale,C2 语义透明度在 1—7 量表上的条件期望
-lexical_structure,string,Qwen label from the 11-class taxonomy,Qwen 在 11 类体系下给出的词汇结构标签
+lexical_structure,string,Canonical codebook label from lexical_structure_labels.csv (SUBORD COORD SP COMP VO PFX SFX PLW PHON_RED MORPH_RED BINOME),词汇结构标准标签（见 lexical_structure_labels.csv）
+chinese_structure,string,Chinese structure name in the label codebook,对照表中的中文结构名称
+english_name,string,English descriptive name of the structure class,结构类别的英文全称
+label,string,Short database label used in lexical_structure,写入 lexical_structure 的英文数据库标签
 st_qc_status,string,Semantic-transparency score status,语义透明度评分质量状态
 structure_qc_status,string,Lexical-structure label status,词汇结构标签质量状态
