@@ -7,7 +7,7 @@ This repository was organized from the final research outputs and follows the ac
 - `data/input/LDT.xlsx` contains 20,044 rows. Retaining real words with non-missing `C1.ST` values produces a scoring set of 8,785 words.
 - `data/final/Qwen_ST.xlsx` is the archived Qwen scoring output for those 8,785 words and is the data source for the correlation and behavioral analyses.
 - `data/input/st_scoring_source_matrix.xlsx` contains 65,892 two-character candidate words produced by merging and filtering the SUBTLEX, yuwei, and xianhan lexicons. Words found in SUBTLEX also retain the original `WCount` frequency value.
-- `data/final/chinese_semantic_transparency_lexicon.csv` is the expanded 65,892-row lexicon. It includes C1/C2 semantic-transparency scores, SUBTLEX frequencies, and lexical-structure labels. See [`data/final/README.md`](data/final/README.md) for details.
+- `data/final/chinese_semantic_transparency_lexicon.xlsx` is the expanded 65,892-row lexicon. It includes C1/C2 semantic-transparency scores, SUBTLEX frequencies, and lexical-structure labels. See [`data/final/README.md`](data/final/README.md) for details.
 
 ## 2. Repository Structure
 
@@ -79,9 +79,9 @@ python S1_qwen_scoring/s2_score_semantic_transparency.py \
 
 | Order | Script | Default input | Default output |
 |---|---|---|---|
-| 1 | `S2_correlation_validation/s1_qwen_human_correlation.py` | `data/final/Qwen_ST.xlsx` | `results/qwen_human_correlation.csv` |
-| 2 | `S2_correlation_validation/s2_word2vec_baseline.py` | `data/final/Qwen_ST.xlsx` and the external Tencent word vectors | `results/word2vec_human_correlation.csv` |
-| 3 | `S2_correlation_validation/s3_rater_split_half.py` | `data/input/human_rating_validation.xlsx` | `results/human_split_half_correlation.csv` |
+| 1 | `S2_correlation_validation/s1_qwen_human_correlation.py` | `data/final/Qwen_ST.xlsx` | `results/qwen_human_correlation.xlsx` |
+| 2 | `S2_correlation_validation/s2_word2vec_baseline.py` | `data/final/Qwen_ST.xlsx` and the external Tencent word vectors | `results/word2vec_human_correlation.xlsx` |
+| 3 | `S2_correlation_validation/s3_rater_split_half.py` | `data/input/human_rating_validation.xlsx` | `results/human_split_half_correlation.xlsx` |
 
 ```bash
 python S2_correlation_validation/s1_qwen_human_correlation.py
@@ -96,7 +96,7 @@ These three scripts compute and export numerical results only; they do not gener
 
 | Script | Default input | Default output |
 |---|---|---|
-| `S3_behavioral_variance/s1_behavioral_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` | `results/behavioral_model_comparison.csv` and `results/behavioral_sample_audit.csv` |
+| `S3_behavioral_variance/s1_behavioral_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` | `results/behavioral_model_comparison.xlsx` and `results/behavioral_sample_audit.xlsx` |
 
 ```bash
 Rscript S3_behavioral_variance/s1_behavioral_incremental_variance.R
@@ -110,7 +110,7 @@ The human ERP data come from the E-MELD dataset by Tsang and Zou (2022). They mu
 
 | Script | Default input | Default output |
 |---|---|---|
-| `S4_erp_time_windows/s1_erp_time_window_lme.R` | `data/input/erp_item_list.xlsx` and `data/input/erp_data_analysis.csv` | `results/erp_time_window_results.csv` and `results/erp_window_overlap.csv` |
+| `S4_erp_time_windows/s1_erp_time_window_lme.R` | `data/input/erp_item_list.xlsx` and `data/input/erp_data_analysis.xlsx` | `results/erp_time_window_results.xlsx` and `results/erp_window_overlap.xlsx` |
 
 ```bash
 Rscript S4_erp_time_windows/s1_erp_time_window_lme.R
@@ -122,8 +122,8 @@ The script fits mixed-effects models for TW1-TW10 and applies BH-FDR correction 
 
 | Order | Script | Default input | Default output | Description |
 |---|---|---|---|---|
-| 1 | `S5_lexical_structure/s1_classify_structure.py` | `data/input/lexical_structure_scoring_input.csv` | `data/final/lexical_structure_scores.csv` | Assigns one of 11 lexical-structure classes to 65,892 words; calls a paid API |
-| 2 | `S5_lexical_structure/s2_structure_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` and `data/final/chinese_semantic_transparency_lexicon.csv` | `results/structure_model_comparison.csv` and `results/structure_nested_tests.csv` | Tests incremental lexical-structure variance and ST-by-structure interactions |
+| 1 | `S5_lexical_structure/s1_classify_structure.py` | `data/input/lexical_structure_scoring_input.xlsx` | `data/final/lexical_structure_scores.xlsx` | Assigns one of 11 lexical-structure classes to 65,892 words; calls a paid API |
+| 2 | `S5_lexical_structure/s2_structure_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` and `data/final/chinese_semantic_transparency_lexicon.xlsx` | `results/structure_model_comparison.xlsx` and `results/structure_nested_tests.xlsx` | Tests incremental lexical-structure variance and ST-by-structure interactions |
 
 ```bash
 python S5_lexical_structure/s1_classify_structure.py

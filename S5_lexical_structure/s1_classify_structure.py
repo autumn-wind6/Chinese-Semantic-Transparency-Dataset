@@ -16,8 +16,8 @@ import pandas as pd
 
 STRUCTURES = ("联合", "偏正", "补充", "动宾", "主谓", "叠音", "重叠", "连绵词", "音译外来词", "前缀", "后缀")
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = REPO_ROOT / "data" / "input" / "lexical_structure_scoring_input.csv"
-DEFAULT_OUTPUT = REPO_ROOT / "data" / "final" / "lexical_structure_scores.csv"
+DEFAULT_INPUT = REPO_ROOT / "data" / "input" / "lexical_structure_scoring_input.xlsx"
+DEFAULT_OUTPUT = REPO_ROOT / "data" / "final" / "lexical_structure_scores.xlsx"
 SYSTEM_PROMPT = """你是一位汉语语言学专家，对汉语词汇结构有深入了解。
 请根据我提供的词语，从以下十一种结构类型中选择一个最合适的类型。
 

@@ -1,8 +1,8 @@
 # Final Data Files
 
-## `chinese_semantic_transparency_lexicon.csv`
+## `chinese_semantic_transparency_lexicon.xlsx`
 
-This file is the expanded semantic-transparency lexicon of Chinese two-character words prepared for this repository. It is UTF-8 encoded, contains 65,892 rows, and has no duplicate values in `word`.
+This file is the expanded semantic-transparency lexicon of Chinese two-character words prepared for this repository. It contains 65,892 rows and has no duplicate values in `word`.
 
 Candidate words were merged, filtered, and deduplicated from three sources:
 
@@ -25,9 +25,9 @@ Candidate words were merged, filtered, and deduplicated from three sources:
 | `qwen_c1_score` | Float | Probability-weighted C1 semantic-transparency score in the range 1-7 |
 | `qwen_c2_probability_distribution` | JSON string | Renormalized distribution over valid ratings from 1 to 7 among the top-five candidates for the first C2 token |
 | `qwen_c2_score` | Float | Probability-weighted C2 semantic-transparency score in the range 1-7 |
-| `lexical_structure` | String | Canonical codebook label from [`lexical_structure_labels.csv`](../lexical_structure_labels.csv) |
+| `lexical_structure` | String | Canonical codebook label from [`lexical_structure_labels.xlsx`](../lexical_structure_labels.xlsx) |
 
-The codebook has 11 English labels: `SUBORD`, `COORD`, `SP`, `COMP`, `VO`, `PFX`, `SFX`, `PLW`, `PHON_RED`, `MORPH_RED`, and `BINOME`. All non-missing labels have been recoded to the codebook `label` values. The mapping table is [`lexical_structure_labels.csv`](../lexical_structure_labels.csv); the original workbook is [`lexical_structure_labels.xlsx`](../lexical_structure_labels.xlsx).
+The codebook has 11 English labels: `SUBORD`, `COORD`, `SP`, `COMP`, `VO`, `PFX`, `SFX`, `PLW`, `PHON_RED`, `MORPH_RED`, and `BINOME`. All non-missing labels have been recoded to the codebook `label` values. The mapping table is [`lexical_structure_labels.xlsx`](../lexical_structure_labels.xlsx).
 
 ## Data Integrity
 
@@ -56,17 +56,17 @@ All other records have complete semantic-transparency scores and lexical-structu
 - C1/C2 Qwen semantic-transparency scoring: [`s2_score_semantic_transparency.py`](../../S1_qwen_scoring/s2_score_semantic_transparency.py)
 - Eleven-class lexical-structure scoring: [`s1_classify_structure.py`](../../S5_lexical_structure/s1_classify_structure.py)
 
-The probability-distribution fields contain JSON text within the CSV. With pandas, parse them as follows:
+The probability-distribution fields contain JSON text. With pandas, parse them as follows:
 
 ```python
 import json
 import pandas as pd
 
-lexicon = pd.read_csv("data/final/chinese_semantic_transparency_lexicon.csv")
+lexicon = pd.read_excel("data/final/chinese_semantic_transparency_lexicon.xlsx")
 c1_distribution = json.loads(lexicon.loc[0, "qwen_c1_probability_distribution"])
 ```
 
-Complete field definitions are also available in the parent directory's [`data_dictionary.csv`](../data_dictionary.csv). Licensing, citation, and redistribution terms for the three external lexicons are governed by their original publication sources.
+Complete field definitions are also available in the parent directory's [`data_dictionary.xlsx`](../data_dictionary.xlsx). Licensing, citation, and redistribution terms for the three external lexicons are governed by their original publication sources.
 
 ## `Qwen_ST.xlsx`
 

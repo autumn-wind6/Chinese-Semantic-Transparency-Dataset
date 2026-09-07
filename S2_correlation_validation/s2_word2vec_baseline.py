@@ -19,7 +19,7 @@ from scipy.stats import pearsonr, spearmanr
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = REPO_ROOT / "data" / "final" / "Qwen_ST.xlsx"
-DEFAULT_OUTPUT = REPO_ROOT / "results" / "word2vec_human_correlation.csv"
+DEFAULT_OUTPUT = REPO_ROOT / "results" / "word2vec_human_correlation.xlsx"
 
 
 def load_env_file(path: Path) -> None:

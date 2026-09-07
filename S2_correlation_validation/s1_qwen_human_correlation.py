@@ -12,7 +12,7 @@ from scipy.stats import pearsonr, spearmanr
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = REPO_ROOT / "data" / "final" / "Qwen_ST.xlsx"
-DEFAULT_OUTPUT = REPO_ROOT / "results" / "qwen_human_correlation.csv"
+DEFAULT_OUTPUT = REPO_ROOT / "results" / "qwen_human_correlation.xlsx"
 
 PAIRS = (
     ("C1", "C1_ST_qwen", "C1.ST"),
@@ -43,7 +43,10 @@ def main() -> None:
     frame = pd.read_excel(args.input) if args.input.suffix.lower() == ".xlsx" else pd.read_csv(args.input)
     result = analyze(frame)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    result.to_csv(args.output, index=False)
+    if args.output.suffix.lower() == ".xlsx":
+        result.to_excel(args.output, index=False)
+    else:
+        result.to_csv(args.output, index=False)
     print(result.to_string(index=False))
 
 

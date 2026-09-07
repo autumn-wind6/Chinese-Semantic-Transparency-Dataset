@@ -2,6 +2,7 @@
 
 # Reproduce incremental explained-variance analyses for zRT and ERR.
 suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(writexl))
 
 script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 script_dir <- dirname(normalizePath(sub("^--file=", "", script_arg[[1]]), mustWork = FALSE))
@@ -62,6 +63,6 @@ for (response in c("zRT", "ERR")) {
   }
 }
 result <- do.call(rbind, rows)
-write.csv(result, file.path(output_dir, "behavioral_model_comparison.csv"), row.names = FALSE)
-write.csv(data.frame(initial_complete_cases = initial_n, excluded_by_zrt_residual = sum(!keep), analysis_n = nrow(analysis)), file.path(output_dir, "behavioral_sample_audit.csv"), row.names = FALSE)
+write_xlsx(result, file.path(output_dir, "behavioral_model_comparison.xlsx"))
+write_xlsx(data.frame(initial_complete_cases = initial_n, excluded_by_zrt_residual = sum(!keep), analysis_n = nrow(analysis)), file.path(output_dir, "behavioral_sample_audit.xlsx"))
 print(result, digits = 6)

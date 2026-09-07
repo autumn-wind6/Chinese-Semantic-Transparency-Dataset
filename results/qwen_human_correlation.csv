@@ -1,5 +1,0 @@
-analysis,position,method,n,coefficient,p_value
-qwen_vs_human,C1,Pearson,8785,0.4878594229413488,0.0
-qwen_vs_human,C1,Spearman,8785,0.5909895676297128,0.0
-qwen_vs_human,C2,Pearson,8785,0.4763630548601599,0.0
-qwen_vs_human,C2,Spearman,8785,0.5384020399757257,0.0

@@ -2,6 +2,7 @@
 
 # Test Qwen ST effects in ten ERP windows with by-subject and by-item intercepts.
 suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(writexl))
 suppressPackageStartupMessages(library(lme4))
 suppressPackageStartupMessages(library(lmerTest))
 
@@ -9,9 +10,9 @@ script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 script_dir <- dirname(normalizePath(sub("^--file=", "", script_arg[[1]]), mustWork = FALSE))
 repo_root <- normalizePath(file.path(script_dir, ".."), mustWork = FALSE)
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) > 3) stop("usage: Rscript s1_erp_time_window_lme.R [ITEM_LIST.xlsx] [DATA.csv] [OUTPUT_DIR]")
+if (length(args) > 3) stop("usage: Rscript s1_erp_time_window_lme.R [ITEM_LIST.xlsx] [DATA.xlsx] [OUTPUT_DIR]")
 item_path <- if (length(args) >= 1) args[[1]] else file.path(repo_root, "data", "input", "erp_item_list.xlsx")
-data_path <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "data", "input", "erp_data_analysis.csv")
+data_path <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "data", "input", "erp_data_analysis.xlsx")
 output_dir <- if (length(args) >= 3) args[[3]] else file.path(repo_root, "results")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -21,7 +22,11 @@ if (length(setdiff(required_items, names(items)))) stop("item list lacks Qwen ST
 items$ST_C1_qwen <- as.numeric(scale(items$ST_C1_qwen))
 items$ST_C2_qwen <- as.numeric(scale(items$ST_C2_qwen))
 
-erp <- read.csv(data_path, check.names = FALSE)
+erp <- if (grepl("\\.csv$", data_path, ignore.case = TRUE)) {
+  read.csv(data_path, check.names = FALSE)
+} else {
+  as.data.frame(read_excel(data_path))
+}
 erp <- merge(erp, items[required_items], by = "Item", all.x = FALSE, all.y = FALSE)
 erp <- erp[complete.cases(erp[, c("ST_C1_qwen", "ST_C2_qwen")]), ]
 if (nrow(erp) != 311202) warning(sprintf("expected 311,202 observations, found %s", nrow(erp)))
@@ -56,7 +61,7 @@ result$ST_C1_qwen_p_fdr <- p.adjust(result$ST_C1_qwen_p, method = "BH")
 result$ST_C2_qwen_p_fdr <- p.adjust(result$ST_C2_qwen_p, method = "BH")
 result$ST_C1_qwen_sig <- result$ST_C1_qwen_p_fdr < .05
 result$ST_C2_qwen_sig <- result$ST_C2_qwen_p_fdr < .05
-write.csv(result, file.path(output_dir, "erp_time_window_results.csv"), row.names = FALSE)
+write_xlsx(result, file.path(output_dir, "erp_time_window_results.xlsx"))
 
 human_c1 <- c("TW1", "TW7", "TW8")
 human_c2 <- c("TW2", "TW4", "TW7")
@@ -68,5 +73,5 @@ overlap <- data.frame(
   qwen_significant_windows = c(paste(qwen_c1, collapse = ";"), paste(qwen_c2, collapse = ";")),
   overlapping_windows = c(paste(intersect(human_c1, qwen_c1), collapse = ";"), paste(intersect(human_c2, qwen_c2), collapse = ";"))
 )
-write.csv(overlap, file.path(output_dir, "erp_window_overlap.csv"), row.names = FALSE)
+write_xlsx(overlap, file.path(output_dir, "erp_window_overlap.xlsx"))
 print(result, digits = 6)

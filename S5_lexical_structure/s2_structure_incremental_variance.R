@@ -2,14 +2,15 @@
 
 # Test lexical-structure main effects and ST-by-structure interaction.
 suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(writexl))
 
 script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 script_dir <- dirname(normalizePath(sub("^--file=", "", script_arg[[1]]), mustWork = FALSE))
 repo_root <- normalizePath(file.path(script_dir, ".."), mustWork = FALSE)
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) > 3) stop("usage: Rscript s2_structure_incremental_variance.R [BEHAVIOR.xlsx] [STRUCTURE.csv/xlsx] [OUTPUT_DIR]")
+if (length(args) > 3) stop("usage: Rscript s2_structure_incremental_variance.R [BEHAVIOR.xlsx] [STRUCTURE.xlsx] [OUTPUT_DIR]")
 behavior_path <- if (length(args) >= 1) args[[1]] else file.path(repo_root, "data", "input", "behavioral_variance_input.xlsx")
-structure_path <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "data", "final", "chinese_semantic_transparency_lexicon.csv")
+structure_path <- if (length(args) >= 2) args[[2]] else file.path(repo_root, "data", "final", "chinese_semantic_transparency_lexicon.xlsx")
 output_dir <- if (length(args) >= 3) args[[3]] else file.path(repo_root, "results")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -80,7 +81,7 @@ for (outcome in c("zRT", "ERR")) {
 }
 model_summary <- do.call(rbind, summary_rows)
 comparisons <- do.call(rbind, comparison_rows)
-write.csv(model_summary, file.path(output_dir, "structure_model_comparison.csv"), row.names = FALSE)
-write.csv(comparisons, file.path(output_dir, "structure_nested_tests.csv"), row.names = FALSE)
+write_xlsx(model_summary, file.path(output_dir, "structure_model_comparison.xlsx"))
+write_xlsx(comparisons, file.path(output_dir, "structure_nested_tests.xlsx"))
 print(model_summary, digits = 6)
 print(comparisons, digits = 6)

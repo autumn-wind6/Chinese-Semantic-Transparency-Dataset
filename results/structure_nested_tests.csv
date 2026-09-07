@@ -1,7 +1,0 @@
-"outcome","reduced_model","full_model","df","F","p_value"
-"zRT","control","structure",10,8.53114636823438,5.41109638267205e-14
-"zRT","control","main_effects",11,9.30864737343729,7.75026069501949e-17
-"zRT","main_effects","interaction",9,0.698471556061952,0.710935737046546
-"ERR","control","structure",10,3.96827914870252,1.98601425245968e-05
-"ERR","control","main_effects",11,5.58319529796476,5.4883612214389e-09
-"ERR","main_effects","interaction",9,0.55331841528119,0.836007734762839
