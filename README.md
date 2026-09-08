@@ -125,6 +125,8 @@ The script fits mixed-effects models for TW1-TW10 and applies BH-FDR correction 
 | 1 | `S5_lexical_structure/s1_classify_structure.py` | `data/input/lexical_structure_scoring_input.xlsx` | `data/final/lexical_structure_scores.xlsx` | Assigns one of 11 lexical-structure classes to 65,892 words; calls a paid API |
 | 2 | `S5_lexical_structure/s2_structure_incremental_variance.R` | `data/input/behavioral_variance_input.xlsx` and `data/final/chinese_semantic_transparency_lexicon.xlsx` | `results/structure_model_comparison.xlsx` and `results/structure_nested_tests.xlsx` | Tests incremental lexical-structure variance and ST-by-structure interactions |
 
+The held-out gold standard for testing 11-class lexical-structure models is `data/input/lexical_structure_gold_1000.xlsx` (1,001 words). Each sheet name is the gold structure label; column 1 is the word and column 2 is an existing model prediction. Complement is kept as a single class. This file is for model evaluation and is not a default input of the S5 scripts.
+
 ```bash
 python S5_lexical_structure/s1_classify_structure.py
 Rscript S5_lexical_structure/s2_structure_incremental_variance.R
@@ -143,4 +145,4 @@ To reproduce the existing analysis results, run S2, S3, S4, and the S5 variance 
 
 ## 6. Scope and Exclusions
 
-The Word2Vec baseline script retains the Tencent-vector cosine-similarity calculations and their correlations with human ratings; the large binary word-vector file remains an external dependency. The benchmark required to evaluate human accuracy on lexical structure was not part of the organized final outputs and is therefore excluded. This repository does not include plotting code, figures, exploratory notebooks, or experimental materials from other working directories.
+The Word2Vec baseline script retains the Tencent-vector cosine-similarity calculations and their correlations with human ratings; the large binary word-vector file remains an external dependency. The held-out gold standard for testing 11-class lexical-structure models is `data/input/lexical_structure_gold_1000.xlsx` (1,001 words; sheet name is the gold label). This repository does not include plotting code, figures, exploratory notebooks, or experimental materials from other working directories.

@@ -12,6 +12,7 @@ All retained scripts read their default inputs from this directory and do not de
 | `input/LDT.xlsx` | 20,044 | Raw semantic-transparency scoring input; filtering for real words with non-missing `C1.ST` leaves 8,785 words | `LDT.xlsx` in the original Qwen-scoring materials |
 | `input/st_scoring_source_matrix.xlsx` | 65,892 | Expanded scoring input from three lexicons | Regenerated from the three sources included in this repository |
 | `input/lexical_structure_scoring_input.xlsx` | 65,892 | Lexical-structure scoring input | Extracted from the `word` column of the final expanded output |
+| `input/lexical_structure_gold_1000.xlsx` | 1,001 | Held-out gold standard for testing 11-class lexical-structure models (sheet name = gold label; column 1 = word; column 2 = existing model output). Complement is a single class (`补充` / COMP), not split into n/v | Original working file `structure_0330 DSC.xlsx` |
 | `input/human_rating_validation.xlsx` | 1,176 | Human-rating mean validation and split-half analysis | Merged crowdsourced semantic-transparency dataset |
 | `input/behavioral_variance_input.xlsx` | 8,785 | zRT/ERR and lexical-structure variance analyses | Intersection dataset from the original Qwen-scoring materials |
 | `input/erp_item_list.xlsx` | 1,020 real words | ERP items and machine-generated ST scores | `item_list.xlsx` from the original data-analysis materials |
